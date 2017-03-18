@@ -25,6 +25,12 @@
     </string-array>
     <string name="pref_slideshowsettings_display_interval_title">Display Interval</string>
 
+    <string name="pref_show_time">Show Current Time</string>
+    <string name="pref_show_photo_description">Show Photo Details</string>
+    <string name="pref_include_album_regex">Include Albums Regex</string>
+    <string name="pref_exclude_album_regex">Exclude Albums Regex</string>
+
+
     <string name="pref_title_sync_frequency">Sync frequency</string>
     <string-array name="pref_sync_frequency_titles">
         <item>15 minutes</item>

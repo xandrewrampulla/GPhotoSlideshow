@@ -34,7 +34,7 @@
             android:layout_height="100pt"
             android:gravity="left"
             android:keepScreenOn="true"
-            android:text="Photo Details Go Here!"
+            android:text=""
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -45,7 +45,7 @@
             android:layout_height="match_parent"
             android:gravity="right"
             android:keepScreenOn="true"
-            android:text="TIME GOES HERE"
+            android:text=""
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold" />

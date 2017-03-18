@@ -2,6 +2,7 @@ package com.drampulla.gphotoslideshow;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -39,7 +40,11 @@ public class UpdateTimeTimerTask {
             @Override
             public void run() {
                 TextView textView = (TextView) mainActivity.findViewById(R.id.image_display_time_text);
-                textView.setText(dateTimeFormatter.format(new Date()));
+                if (PreferenceManager.getDefaultSharedPreferences(mainActivity.getApplicationContext()).getBoolean(PreferenceConstants.SHOW_TIME, false)) {
+                    textView.setText(dateTimeFormatter.format(new Date()));
+                } else {
+                    textView.setText("");
+                }
             }
         });
     }

@@ -4,12 +4,14 @@ package com.drampulla.gphotoslideshow;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -54,7 +56,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
-
+            } else if (preference instanceof CheckBoxPreference) {
+                ((CheckBoxPreference) preference).setChecked(Boolean.parseBoolean(stringValue));
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
@@ -86,12 +89,29 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(preference.getContext());
+        Object prefValue = null;
+
+        switch (preference.getKey()) {
+            case PreferenceConstants.SLIDESHOW_INDEX:
+                prefValue = (Integer) sharedPreferences.getInt(preference.getKey(), 0);
+                break;
+            case PreferenceConstants.SHOW_TIME:
+            case PreferenceConstants.SHOW_PHOTO_DESCRIPTION:
+                prefValue = sharedPreferences.getBoolean(preference.getKey(), false);
+                break;
+            case PreferenceConstants.DISPLAY_INTERVAL_KEY:
+            case PreferenceConstants.INCLUDE_REGEX:
+            case PreferenceConstants.EXCLUDE_REGEX:
+                prefValue = sharedPreferences.getString(preference.getKey(), "");
+                break;
+            default:
+                throw new RuntimeException("Unknown preference " + preference.getKey());
+        }
+
         // Trigger the listener immediately with the preference's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, prefValue);
     }
 
     @Override
@@ -154,6 +174,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.DISPLAY_INTERVAL_KEY));
+            bindPreferenceSummaryToValue(findPreference(PreferenceConstants.SHOW_TIME));
+            bindPreferenceSummaryToValue(findPreference(PreferenceConstants.SHOW_PHOTO_DESCRIPTION));
+            bindPreferenceSummaryToValue(findPreference(PreferenceConstants.INCLUDE_REGEX));
+            bindPreferenceSummaryToValue(findPreference(PreferenceConstants.EXCLUDE_REGEX));
         }
 
         @Override

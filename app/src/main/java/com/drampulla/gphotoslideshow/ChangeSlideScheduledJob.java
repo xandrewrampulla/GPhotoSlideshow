@@ -68,15 +68,16 @@ public class ChangeSlideScheduledJob {
         preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                LOGGER.d("Preference changed, so update the timer");
-                changeScheduledTime();
+                if (PreferenceConstants.DISPLAY_INTERVAL_KEY.equals(s)) {
+                    LOGGER.d("Preference changed, so update the timer");
+                    changeScheduledTime();
+                }
             }
         };
 
         // handle if the preference changes
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mainActivity.getApplicationContext());
         prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
-
     }
 
     /**
@@ -137,8 +138,11 @@ public class ChangeSlideScheduledJob {
                         imageSwitcher.setImageDrawable(drawable);
 
                         final TextView textViewPhotoInfo = (TextView) mainActivity.findViewById(R.id.image_display_details_text);
-                        textViewPhotoInfo.setText(getPhotoDescription(photoEntry));
-
+                        if (PreferenceManager.getDefaultSharedPreferences(mainActivity.getApplicationContext()).getBoolean(PreferenceConstants.SHOW_PHOTO_DESCRIPTION, false)) {
+                            textViewPhotoInfo.setText(getPhotoDescription(photoEntry));
+                        } else {
+                            textViewPhotoInfo.setText("");
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

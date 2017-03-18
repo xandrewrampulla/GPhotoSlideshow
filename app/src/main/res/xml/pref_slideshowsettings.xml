@@ -4,11 +4,34 @@
 
 
     <ListPreference
+        android:key="display_interval"
         android:defaultValue="10"
         android:entries="@array/pref_slideshowsettings_display_interval_titles"
         android:entryValues="@array/pref_slideshowsettings_display_interval_values"
-        android:key="display_interval"
         android:title="@string/pref_slideshowsettings_display_interval_title"
         />
+    <CheckBoxPreference
+        android:key="showTimePreference"
+        android:title="@string/pref_show_time"
+        />
+
+    <CheckBoxPreference
+        android:key="showPhotoDescriptionPreference"
+        android:title="@string/pref_show_photo_description"/>
+
+    <EditTextPreference
+        android:key="includeAlbumRegex"
+        android:title="@string/pref_include_album_regex"
+        android:autoText="false"
+        android:editable="true"
+        android:lines="10"/>
+
+    <EditTextPreference
+        android:key="excludeAlbumRegex"
+        android:title="@string/pref_exclude_album_regex"
+        android:autoText="false"
+        android:editable="true"
+        android:lines="10"/>
+
 
 </PreferenceScreen>

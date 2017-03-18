@@ -5,8 +5,10 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -52,6 +54,11 @@ public class PicasaManager {
     private String username;
 
     /**
+     * Preferences for storing various information.
+     */
+    private SharedPreferences sharedPreferences;
+
+    /**
      * Initialize the service by finding the right username and getting appropriate
      * OAuth keys from Google.
      *
@@ -63,6 +70,8 @@ public class PicasaManager {
      *          this application (this happens outside of the main UI thread).
      */
     public void initialize(final Activity mainActivity, final InitializedCallback initializedCallback) {
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity.getApplicationContext());
 
         try {
             ActivityCompat.requestPermissions(mainActivity,
@@ -193,7 +202,7 @@ public class PicasaManager {
      * @throws ServiceException
      */
     public SlideshowIterator createSlideshowIterator() throws MalformedURLException, IOException, ServiceException {
-        return new SlideshowIterator(picasawebService.getFeed(new URL(URL_PREFIX + username), UserFeed.class));
+        return new SlideshowIterator(sharedPreferences, picasawebService.getFeed(new URL(URL_PREFIX + username), UserFeed.class));
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.drampulla.gphotoslideshow;
 
+import android.content.SharedPreferences;
+
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.GphotoEntry;
 import com.google.gdata.data.photos.PhotoEntry;
@@ -9,12 +11,18 @@ import com.google.gdata.util.ServiceException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.regex.Pattern;
 
 /**
  * Iterator to walk through the photos in various Google Photo albums.  As we reach
  * the end of one photo album we automatically move to the next album.
  */
 public class SlideshowIterator implements ListIterator<PhotoEntry> {
+
+    /**
+     * Default logger.
+     */
+    private static final Logger LOGGER = new Logger(SlideshowIterator.class);
 
     /**
      * Feed of all albums the in the user's account
@@ -36,10 +44,16 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
 
     /**
      * Counter to keep track of how many pictures into the slideshow we are.
-     * TODO: The intent is to store this value somewhere and restart a slideshow
+     * The intent is to store this value somewhere and restart a slideshow
      * from where it left off.
      */
     private int listIndex;
+
+    /**
+     * preferences for storing "listIndex" so we can remember where we left off in the iterator.
+     */
+    private SharedPreferences sharedPreferences;
+
 
     /**
      * Default constructor.
@@ -49,7 +63,8 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
      * @throws IOException
      * @throws ServiceException
      */
-    public SlideshowIterator(UserFeed albumFeed) throws IOException, ServiceException {
+    public SlideshowIterator(SharedPreferences sharedPreferences, UserFeed albumFeed) throws IOException, ServiceException {
+        this.sharedPreferences = sharedPreferences;
         this.albumFeed = albumFeed;
         this.albumIterator = this.albumFeed.getEntries().listIterator();
         if (!this.albumIterator.hasNext()) {
@@ -58,6 +73,22 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
         this.listIndex = 0;
         this.currentAlbum = new AlbumEntry(this.albumIterator.next());
         this.photoIterator = this.currentAlbum.getFeed().getEntries().listIterator();
+
+        LOGGER.d("Starting with album " + this.currentAlbum.getTitle().getPlainText());
+
+        advanceToListIndex(sharedPreferences.getInt(PreferenceConstants.SLIDESHOW_INDEX, 0));
+    }
+
+    /**
+     * Advance forward to the specified listIndex.
+     *
+     * @param targetIndex
+     *          The index of the photo to display.
+     */
+    private void advanceToListIndex(int targetIndex) {
+        while (listIndex < targetIndex) {
+            next();
+        }
     }
 
     @Override
@@ -72,17 +103,43 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
 
     @Override
     public PhotoEntry next() {
+        PhotoEntry rc = null;
         try {
             if (this.photoIterator.hasNext()) {
-                return new PhotoEntry(this.photoIterator.next());
+                rc = new PhotoEntry(this.photoIterator.next());
             } else {
-                this.currentAlbum = new AlbumEntry(this.albumIterator.next());
+                this.currentAlbum = nextAlbumEntry();
+                LOGGER.d("Using album " + this.currentAlbum.getTitle().getPlainText());
                 this.photoIterator = this.currentAlbum.getFeed().getEntries().listIterator();
-                return new PhotoEntry(this.photoIterator.next());
+                rc =  new PhotoEntry(this.photoIterator.next());
             }
+
+            listIndex++;
+            sharedPreferences.edit().putInt(PreferenceConstants.SLIDESHOW_INDEX, listIndex).commit();
         } catch (IOException | ServiceException e) {
             throw new RuntimeException("Unable to get next photo", e);
         }
+
+        return rc;
+    }
+
+    /**
+     * Skip over any album entries that don't match the include pattern or do match the exclude pattern
+     * @return
+     *          The next album entry to use.
+     */
+    private AlbumEntry nextAlbumEntry() {
+        Pattern excludePattern = Pattern.compile(sharedPreferences.getString(PreferenceConstants.EXCLUDE_REGEX, ""));
+        Pattern includePattern = Pattern.compile(sharedPreferences.getString(PreferenceConstants.INCLUDE_REGEX, ".*"));
+
+        AlbumEntry ae = new AlbumEntry(this.albumIterator.next());
+        while (!includePattern.matcher(ae.getTitle().getPlainText()).matches()
+                || excludePattern.matcher(ae.getTitle().getPlainText()).matches()) {
+            LOGGER.d("Skipping over album " + ae.getTitle().getPlainText());
+            ae = new AlbumEntry(this.albumIterator.next());
+        }
+
+        return ae;
     }
 
     @Override
@@ -96,17 +153,22 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
 
     @Override
     public PhotoEntry previous() {
+        PhotoEntry rc = null;
         try {
             if (this.photoIterator.hasPrevious()) {
-                return new PhotoEntry(this.photoIterator.previous());
+                rc = new PhotoEntry(this.photoIterator.previous());
             } else {
                 this.currentAlbum = new AlbumEntry(this.albumIterator.previous());
                 this.photoIterator = this.currentAlbum.getFeed().getEntries().listIterator();
-                return new PhotoEntry(this.photoIterator.previous());
+                rc = new PhotoEntry(this.photoIterator.previous());
             }
+
+            listIndex--;
+            sharedPreferences.edit().putInt(PreferenceConstants.SLIDESHOW_INDEX, listIndex).commit();
         } catch (IOException | ServiceException e) {
             throw new RuntimeException("Unable to get next photo", e);
         }
+        return rc;
     }
 
     @Override
