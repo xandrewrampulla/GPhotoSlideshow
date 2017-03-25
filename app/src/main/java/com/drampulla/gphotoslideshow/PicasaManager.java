@@ -81,18 +81,23 @@ public class PicasaManager {
             AccountManager am = (AccountManager) mainActivity.getSystemService(Activity.ACCOUNT_SERVICE);
             Account[] accounts = am.getAccounts();
 
+            // find the account associated with gmail
+            Account targetAccount = null;
             LOGGER.v("Account length:" + accounts.length);
             for (Account a : accounts) {
                 LOGGER.v("Account : " + a.name + ", " + a.type + ", " + a.describeContents());
+                if (a.name.endsWith("gmail.com")) {
+                    targetAccount = a;
+                }
             }
 
             if (accounts.length < 1) {
                 throw new RuntimeException("PicasaManager is unable to find any accounts on this system");
             }
 
-            this.username = accounts[0].name;
+            LOGGER.d("Using account " + targetAccount.name);
 
-
+            this.username = targetAccount.name;
             AccountManagerCallback<Bundle> cb = new AccountManagerCallback<Bundle>() {
                 @Override
                 public void run(final AccountManagerFuture<Bundle> accountManagerFuture) {
@@ -120,7 +125,7 @@ public class PicasaManager {
                     }
                 }
             };
-            am.getAuthToken(accounts[0], PICASA_OAUTH_TYPE, null, mainActivity, cb, null);
+            am.getAuthToken(targetAccount, PICASA_OAUTH_TYPE, null, mainActivity, cb, null);
 
 
         } catch (SecurityException e) {
