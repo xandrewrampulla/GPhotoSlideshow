@@ -59,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler;
 
     /**
+     * Handler for all gestures on the MainActivity
+     */
+    private GestureDetectorCompat gestureDetectorCompat;
+
+    /**
      *
      * @param savedInstanceState
      */
@@ -73,22 +78,12 @@ public class MainActivity extends AppCompatActivity {
         initializeImageSwitcher();
 
         // add handler for detecting swipe left/right
-        initializeGestureDetection();
+        gestureDetectorCompat = new GestureDetectorCompat(this, new MainGestureListener());
 
         handler = new Handler();
 
-        picasaManager.initialize(MainActivity.this, new PicasaManager.InitializedCallback() {
-            @Override
-            public void callback() {
-                try {
-                    slideshowIterator = picasaManager.createSlideshowIterator();
-                    changeSlideScheduledJob = new ChangeSlideScheduledJob(slideshowIterator, MainActivity.this, handler);
-                    updateTimeTimerTask = new UpdateTimeTimerTask(MainActivity.this, handler);
-                } catch (IOException | ServiceException e) {
-                    LOGGER.e("Failed to create slideshow iterator", e);
-                }
-            }
-        });
+        // initialize the picasa web service
+        initializePicasa();
     }
 
     /**
@@ -108,6 +103,22 @@ public class MainActivity extends AppCompatActivity {
         // TODO: Figure out in/out animations
         //imageSwitcher.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left));
         //imageSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right));
+    }
+
+
+    private void initializePicasa() {
+        picasaManager.initialize(MainActivity.this, new PicasaManager.InitializedCallback() {
+            @Override
+            public void callback() {
+                try {
+                    slideshowIterator = picasaManager.createSlideshowIterator();
+                    changeSlideScheduledJob = new ChangeSlideScheduledJob(slideshowIterator, MainActivity.this, handler);
+                    updateTimeTimerTask = new UpdateTimeTimerTask(MainActivity.this, handler);
+                } catch (IOException | ServiceException e) {
+                    LOGGER.e("Failed to create slideshow iterator", e);
+                }
+            }
+        });
     }
 
     /**
@@ -133,8 +144,11 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        LOGGER.d("Was an option actually selected?");
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            LOGGER.d("Should be laucnhing settings, does this work?");
             Intent i = new Intent(this, SettingsActivity.class);
             startActivityForResult(i, 1);
             return true;
@@ -159,76 +173,76 @@ public class MainActivity extends AppCompatActivity {
      *      swipe_left: slideshow.prev
      *      touch : bring up settings toolbar
      */
-    private void initializeGestureDetection() {
-        ImageSwitcher imageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
-        final GestureDetectorCompat gestureDetectorCompat = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
-            private static final int SWIPE_THRESHOLD = 100;
-            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-            @Override
-            public boolean onDown(MotionEvent motionEvent) {
-                return true;
-            }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        gestureDetectorCompat.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
 
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                // only display the toolbar when the user clicks on the screen
-                final Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-                if (myToolbar.getVisibility() == Toolbar.VISIBLE) {
-                    myToolbar.setVisibility(Toolbar.GONE);
-                } else {
-                    myToolbar.setVisibility(Toolbar.VISIBLE);
-                }
-                return true;
-            }
 
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                float diffY = e2.getY() - e1.getY();
-                float diffX = e2.getX() - e1.getX();
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffX > 0) {
-                            onSwipeRight();
-                        } else {
-                            onSwipeLeft();
-                        }
-                        return true;
+
+
+
+
+
+
+    public class MainGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        @Override
+        public boolean onDown(MotionEvent motionEvent) {
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            // only display the toolbar when the user clicks on the screen
+            Toolbar toolbar = (Toolbar) MainActivity.this.findViewById(R.id.my_toolbar);
+            if (toolbar.getVisibility() == Toolbar.VISIBLE) {
+                toolbar.setVisibility(Toolbar.GONE);
+            } else {
+                toolbar.setVisibility(Toolbar.VISIBLE);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            float diffY = e2.getY() - e1.getY();
+            float diffX = e2.getX() - e1.getX();
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffX > 0) {
+                        onSwipeRight();
+                    } else {
+                        onSwipeLeft();
                     }
+                    return true;
                 }
-
-                return false;
             }
-        });
 
-        imageSwitcher.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                gestureDetectorCompat.onTouchEvent(motionEvent);
-                return true;
-            }
-        });
+            return false;
+        }
+        private void onSwipeRight() {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    MainActivity.this.changeSlideScheduledJob.previousSlide();
+                    return null;
+                }
+            }.execute();
+        }
 
-    }
-
-
-    private void onSwipeRight() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                MainActivity.this.changeSlideScheduledJob.previousSlide();
-                return null;
-            }
-        }.execute();
-    }
-
-    private void onSwipeLeft() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                MainActivity.this.changeSlideScheduledJob.nextSlide();
-                return null;
-            }
-        }.execute();
+        private void onSwipeLeft() {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    MainActivity.this.changeSlideScheduledJob.nextSlide();
+                    return null;
+                }
+            }.execute();
+        }
     }
 
 }

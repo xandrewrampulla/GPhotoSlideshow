@@ -129,8 +129,13 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
      *          The next album entry to use.
      */
     private AlbumEntry nextAlbumEntry() {
+
+        // I want to make sure empty string is the same as include everything
+        String includeRegex = sharedPreferences.getString(PreferenceConstants.INCLUDE_REGEX, ".*");
+        includeRegex = includeRegex.equals("") ? ".*" : includeRegex;
+
         Pattern excludePattern = Pattern.compile(sharedPreferences.getString(PreferenceConstants.EXCLUDE_REGEX, ""));
-        Pattern includePattern = Pattern.compile(sharedPreferences.getString(PreferenceConstants.INCLUDE_REGEX, ".*"));
+        Pattern includePattern = Pattern.compile(includeRegex);
 
         AlbumEntry ae = new AlbumEntry(this.albumIterator.next());
         while (!includePattern.matcher(ae.getTitle().getPlainText()).matches()
