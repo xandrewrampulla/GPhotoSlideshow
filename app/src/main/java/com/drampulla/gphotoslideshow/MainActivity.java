@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
@@ -100,9 +101,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // TODO: Figure out in/out animations
-        //imageSwitcher.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left));
-        //imageSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right));
+        imageSwitcher.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.fadein));
+        imageSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeout));
     }
 
 
