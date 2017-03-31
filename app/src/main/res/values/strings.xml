@@ -25,6 +25,16 @@
     </string-array>
     <string name="pref_slideshowsettings_display_interval_title">Display Interval</string>
 
+    <string-array name="animation_types">
+        <item>Fade</item>
+        <item>Rotate And Resize</item>
+    </string-array>
+
+    <string-array name="animation_type_values">
+        <item>fadein,fadeout</item>
+        <item>rotate_and_grow,rotate_and_shrink</item>
+    </string-array>
+
     <string name="pref_show_time">Show Current Time</string>
     <string name="pref_show_photo_description">Show Photo Details</string>
     <string name="pref_include_album_regex">Include Albums Regex</string>

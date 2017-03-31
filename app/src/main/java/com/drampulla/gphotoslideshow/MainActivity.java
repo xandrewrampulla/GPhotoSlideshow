@@ -1,8 +1,10 @@
 package com.drampulla.gphotoslideshow;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,7 +24,6 @@ import android.widget.ViewSwitcher;
 import com.google.gdata.util.ServiceException;
 
 import java.io.IOException;
-import java.util.Timer;
 
 /**
  * The main entry point for the application to start the slideshow.
@@ -65,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
     private GestureDetectorCompat gestureDetectorCompat;
 
     /**
+     * Preference listener for handling changes in Animation type.
+     */
+    private SharedPreferences.OnSharedPreferenceChangeListener animationTypePreferenceChangeListener;
+
+
+    /**
      *
      * @param savedInstanceState
      */
@@ -101,8 +108,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        imageSwitcher.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.fadein));
-        imageSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeout));
+        initializeAnimations(imageSwitcher);
+    }
+
+    /**
+     *
+     * @param imageSwitcher
+     */
+    private void initializeAnimations(final ImageSwitcher imageSwitcher) {
+        String animationType = PreferenceManager.getDefaultSharedPreferences(this).getString(PreferenceConstants.ANIMATION_TYPE, "fadein,fadeout");
+        String[] split = animationType.split(",");
+        // not bothering with checking split, since this is in my control
+        int inR = getResources().getIdentifier(split[0], "anim", this.getPackageName());
+        int outR = getResources().getIdentifier(split[1], "anim", this.getPackageName());
+
+        imageSwitcher.setInAnimation(AnimationUtils.loadAnimation(this, inR));
+        imageSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this, outR));
+
+        // Keeping this as a member variable because the SharedPreferences only keep this listener
+        // as a weak reference.
+        animationTypePreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+                if (PreferenceConstants.ANIMATION_TYPE.equals(s)) {
+                    LOGGER.d("Preference changed, so update the animation style");
+                    initializeAnimations(imageSwitcher);
+                }
+            }
+        };
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(animationTypePreferenceChangeListener);
     }
 
 

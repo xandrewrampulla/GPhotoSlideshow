@@ -8,6 +8,7 @@ public interface PreferenceConstants {
 
     String DISPLAY_INTERVAL_KEY = "display_interval";
     String SLIDESHOW_INDEX = "slideshow_index";
+    String ANIMATION_TYPE = "animation_type";
 
     String SHOW_TIME = "showTimePreference";
     String SHOW_PHOTO_DESCRIPTION = "showPhotoDescriptionPreference";

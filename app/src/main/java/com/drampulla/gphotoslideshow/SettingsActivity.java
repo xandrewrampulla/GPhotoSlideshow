@@ -100,6 +100,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             case PreferenceConstants.SHOW_PHOTO_DESCRIPTION:
                 prefValue = sharedPreferences.getBoolean(preference.getKey(), false);
                 break;
+            case PreferenceConstants.ANIMATION_TYPE:
             case PreferenceConstants.DISPLAY_INTERVAL_KEY:
             case PreferenceConstants.INCLUDE_REGEX:
             case PreferenceConstants.EXCLUDE_REGEX:
@@ -173,6 +174,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
+            bindPreferenceSummaryToValue(findPreference(PreferenceConstants.ANIMATION_TYPE));
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.DISPLAY_INTERVAL_KEY));
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.SHOW_TIME));
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.SHOW_PHOTO_DESCRIPTION));
