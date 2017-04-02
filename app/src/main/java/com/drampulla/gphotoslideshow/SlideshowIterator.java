@@ -116,6 +116,7 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
 
             listIndex++;
             sharedPreferences.edit().putInt(PreferenceConstants.SLIDESHOW_INDEX, listIndex).commit();
+            LOGGER.d("Next index=" + listIndex);
         } catch (IOException | ServiceException e) {
             throw new RuntimeException("Unable to get next photo", e);
         }

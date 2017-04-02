@@ -38,12 +38,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Class that manages all Google Photos.
      */
-    private final PicasaManager picasaManager = new PicasaManager();
+    private final static PicasaManager picasaManager = new PicasaManager();
 
     /**
      * Iterator to walk forward and backward through my Google Photos.
      */
-    private SlideshowIterator slideshowIterator;
+    private static SlideshowIterator slideshowIterator;
 
     /**
      * Change slides every X seconds (based on preferences).
@@ -145,7 +145,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void callback() {
                 try {
-                    slideshowIterator = picasaManager.createSlideshowIterator();
+                    if (slideshowIterator == null) {
+                        slideshowIterator = picasaManager.createSlideshowIterator();
+                    }
                     changeSlideScheduledJob = new ChangeSlideScheduledJob(slideshowIterator, MainActivity.this, handler);
                     updateTimeTimerTask = new UpdateTimeTimerTask(MainActivity.this, handler);
                 } catch (IOException | ServiceException e) {

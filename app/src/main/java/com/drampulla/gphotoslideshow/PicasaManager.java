@@ -71,6 +71,20 @@ public class PicasaManager {
      */
     public void initialize(final Activity mainActivity, final InitializedCallback initializedCallback) {
 
+        if (picasawebService != null) {
+            // this has already been initialized, so skip all initialization stuff
+            // and just call the callback
+            LOGGER.d("Skipping PicasaManager initialization.");
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    initializedCallback.callback();
+                    return null;
+                }
+            }.execute();
+            return;
+        }
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity.getApplicationContext());
 
         try {
