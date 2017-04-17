@@ -12,12 +12,16 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.google.gdata.client.AuthTokenFactory;
+import com.google.gdata.client.GoogleAuthTokenFactory;
+import com.google.gdata.client.GoogleService;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
 import com.google.gdata.data.photos.GphotoEntry;
 import com.google.gdata.data.photos.PhotoEntry;
 import com.google.gdata.data.photos.UserFeed;
+import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 
 import java.io.IOException;
@@ -125,7 +129,13 @@ public class PicasaManager {
                         LOGGER.v("Got OAuth token for " + accountName + " -- " + accountType + " -- Token=" + authToken);
 
                         picasawebService = new PicasawebService("drampulla.example.com.helloworld");
-                        picasawebService.setAuthSubToken(accountManagerFuture.getResult().getString(AccountManager.KEY_AUTHTOKEN));
+                        picasawebService.setAuthTokenFactory(new GoogleAuthTokenFactory(PICASA_OAUTH_TYPE, "drampulla.example.com.helloworld", new AuthTokenFactory.TokenListener() {
+                            @Override
+                            public void tokenChanged(AuthTokenFactory.AuthToken newToken) {
+                                LOGGER.d("Auth token changed");
+                            }
+                        }));
+                        //picasawebService.setAuthSubToken(accountManagerFuture.getResult().getString(AccountManager.KEY_AUTHTOKEN));
 
                         new AsyncTask<Void, Void, Void>() {
                             @Override

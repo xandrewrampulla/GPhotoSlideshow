@@ -111,7 +111,7 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
                 this.currentAlbum = nextAlbumEntry();
                 LOGGER.d("Using album " + this.currentAlbum.getTitle().getPlainText());
                 this.photoIterator = this.currentAlbum.getFeed().getEntries().listIterator();
-                rc =  new PhotoEntry(this.photoIterator.next());
+                rc =  next();
             }
 
             listIndex++;
@@ -137,6 +137,13 @@ public class SlideshowIterator implements ListIterator<PhotoEntry> {
 
         Pattern excludePattern = Pattern.compile(sharedPreferences.getString(PreferenceConstants.EXCLUDE_REGEX, ""));
         Pattern includePattern = Pattern.compile(includeRegex);
+
+        if (!this.albumIterator.hasNext()) {
+            // we ran over all albums, so rotate back to start
+            this.albumIterator = this.albumFeed.getEntries().listIterator();
+            listIndex = 0;
+        }
+
 
         AlbumEntry ae = new AlbumEntry(this.albumIterator.next());
         while (!includePattern.matcher(ae.getTitle().getPlainText()).matches()

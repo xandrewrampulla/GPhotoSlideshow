@@ -1,6 +1,7 @@
 package com.drampulla.gphotoslideshow;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -94,7 +95,16 @@ public class ChangeSlideScheduledJob {
         future = EXECUTOR.scheduleAtFixedRate(new Runnable() {
                                                           @Override
                                                           public void run() {
-                                                              nextSlide();
+                                                              try {
+                                                                  nextSlide();
+                                                              } catch (Throwable t) {
+                                                                  LOGGER.e("Something bad happened while getting next slide", t);
+                                                                  AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
+                                                                  builder.setTitle("NextSlide error")
+                                                                          .setMessage(t.getMessage())
+                                                                          .setCancelable(true)
+                                                                          .create().show();
+                                                              }
                                                           }
                                                       },
                                             Long.parseLong(displayInterval),
