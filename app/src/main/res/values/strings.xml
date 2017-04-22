@@ -36,6 +36,7 @@
     </string-array>
 
     <string name="pref_show_time">Show Current Time</string>
+    <string name="pref_time_format">Time format (ie. YYYY-MM-dd HH:mm:ss)</string>
     <string name="pref_show_photo_description">Show Photo Details</string>
     <string name="pref_include_album_regex">Include Albums Regex</string>
     <string name="pref_exclude_album_regex">Exclude Albums Regex</string>

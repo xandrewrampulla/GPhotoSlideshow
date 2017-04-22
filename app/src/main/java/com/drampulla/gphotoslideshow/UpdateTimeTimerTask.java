@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class UpdateTimeTimerTask {
 
-    private static final SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("MM/dd/yyyy\nHH:mm:ss");
+    private static final Logger LOGGER = new Logger(UpdateTimeTimerTask.class);
+
     private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(1);
 
     private final Activity mainActivity;
@@ -41,7 +42,17 @@ public class UpdateTimeTimerTask {
             public void run() {
                 TextView textView = (TextView) mainActivity.findViewById(R.id.image_display_time_text);
                 if (PreferenceManager.getDefaultSharedPreferences(mainActivity.getApplicationContext()).getBoolean(PreferenceConstants.SHOW_TIME, false)) {
-                    textView.setText(dateTimeFormatter.format(new Date()));
+                    String dateFormat = PreferenceManager.getDefaultSharedPreferences(mainActivity.getApplicationContext()).getString(PreferenceConstants.TIME_FORMAT, "HH:mm:ss");
+                    try {
+                        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat(dateFormat);
+                        String dateText = dateTimeFormatter.format(new Date());
+                        textView.setText(dateText);
+                    } catch (Exception e) {
+                        LOGGER.w("Failed to parse date " + dateFormat, e);
+                        dateFormat = "HH:mm:ss";
+                        SimpleDateFormat dateTimeFormatter = new SimpleDateFormat(dateFormat);
+                        textView.setText(dateTimeFormatter.format(new Date()));
+                    }
                 } else {
                     textView.setText("");
                 }

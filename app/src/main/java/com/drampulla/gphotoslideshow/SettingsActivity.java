@@ -104,6 +104,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             case PreferenceConstants.DISPLAY_INTERVAL_KEY:
             case PreferenceConstants.INCLUDE_REGEX:
             case PreferenceConstants.EXCLUDE_REGEX:
+            case PreferenceConstants.TIME_FORMAT:
                 prefValue = sharedPreferences.getString(preference.getKey(), "");
                 break;
             default:
@@ -177,6 +178,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.ANIMATION_TYPE));
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.DISPLAY_INTERVAL_KEY));
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.SHOW_TIME));
+            bindPreferenceSummaryToValue(findPreference(PreferenceConstants.TIME_FORMAT));
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.SHOW_PHOTO_DESCRIPTION));
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.INCLUDE_REGEX));
             bindPreferenceSummaryToValue(findPreference(PreferenceConstants.EXCLUDE_REGEX));

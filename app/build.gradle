@@ -1,6 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        keystore {
+            keyAlias 'gphotoslideshowsignature'
+            keyPassword 'password'
+            storeFile file('/Users/drampull/local.mydev/MyApplications/GPhotoSlideshow/app/keystore.jks')
+            storePassword 'password'
+        }
+        androiddebug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('/Users/drampull/.android/debug.keystore')
+            storePassword 'android'
+        }
+    }
     compileSdkVersion 24
     buildToolsVersion "25.0.2"
     defaultConfig {
@@ -12,12 +26,16 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
+        signingConfig signingConfigs.keystore
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.keystore
         }
+    }
+    productFlavors {
     }
 }
 
@@ -26,9 +44,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
     compile 'com.android.support:multidex:1.0.1'
-
     // consider 10.0.1
     compile('com.google.gdata:core:1.47.1') {
         // Exclude artifacts that the Android SDK provides.

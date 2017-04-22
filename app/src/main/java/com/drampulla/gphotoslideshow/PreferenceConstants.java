@@ -11,6 +11,7 @@ public interface PreferenceConstants {
     String ANIMATION_TYPE = "animation_type";
 
     String SHOW_TIME = "showTimePreference";
+    String TIME_FORMAT = "timeFormat";
     String SHOW_PHOTO_DESCRIPTION = "showPhotoDescriptionPreference";
     String INCLUDE_REGEX = "includeAlbumRegex";
     String EXCLUDE_REGEX = "excludeAlbumRegex";

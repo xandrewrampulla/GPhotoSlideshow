@@ -22,6 +22,14 @@
         android:title="@string/pref_show_time"
         />
 
+    <EditTextPreference
+        android:key="timeFormat"
+        android:title="@string/pref_time_format"
+        android:autoText="false"
+        android:editable="true"
+        android:lines="2"
+        />
+
     <CheckBoxPreference
         android:key="showPhotoDescriptionPreference"
         android:title="@string/pref_show_photo_description"/>
